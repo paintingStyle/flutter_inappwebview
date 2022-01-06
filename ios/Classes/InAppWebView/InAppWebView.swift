@@ -780,13 +780,34 @@ public class InAppWebView: WKWebView, UIScrollViewDelegate, WKUIDelegate, WKNavi
         load(request)
     }
     
-    public func loadData(data: String, mimeType: String, encoding: String, baseUrl: URL, allowingReadAccessTo: URL?) {
+//     public func loadData(data: String, mimeType: String, encoding: String, baseUrl: URL, allowingReadAccessTo: URL?) {
+//         if #available(iOS 9.0, *), let allowingReadAccessTo = allowingReadAccessTo, baseUrl.scheme == "file", allowingReadAccessTo.scheme == "file" {
+//             loadFileURL(baseUrl, allowingReadAccessTo: allowingReadAccessTo)
+//         }
+        
+//         if #available(iOS 9.0, *) {
+//             load(data.data(using: .utf8)!, mimeType: mimeType, characterEncodingName: encoding, baseURL: baseUrl)
+//         } else {
+//             loadHTMLString(data, baseURL: baseUrl)
+//         }
+//     }
+    
+     public func loadData(data: String, mimeType: String, encoding: String, baseUrl: URL, allowingReadAccessTo: URL?) {
         if #available(iOS 9.0, *), let allowingReadAccessTo = allowingReadAccessTo, baseUrl.scheme == "file", allowingReadAccessTo.scheme == "file" {
             loadFileURL(baseUrl, allowingReadAccessTo: allowingReadAccessTo)
         }
         
         if #available(iOS 9.0, *) {
-            load(data.data(using: .utf8)!, mimeType: mimeType, characterEncodingName: encoding, baseURL: baseUrl)
+            // FIXME: 修复无法加载本地文件的问题 InAppWebView.swift
+            let isEmptyBaseUrl  = baseUrl.scheme?.hasPrefix("about") ?? false
+            if  isEmptyBaseUrl {
+                let mainBundle =  Bundle.main
+                let bundleURL = mainBundle.bundleURL
+                load(data.data(using: .utf8)!, mimeType: mimeType, characterEncodingName: encoding, baseURL: bundleURL)
+            } else {
+                load(data.data(using: .utf8)!, mimeType: mimeType, characterEncodingName: encoding, baseURL: baseUrl)
+            }
+
         } else {
             loadHTMLString(data, baseURL: baseUrl)
         }
