@@ -1,5 +1,29 @@
 # Flutter InAppWebView Plugin [![Share on Twitter](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Flutter%20InAppBrowser%20plugin!&url=https://github.com/pichillilorenzo/flutter_inappwebview&hashtags=flutter,flutterio,dart,dartlang,webview) [![Share on Facebook](https://img.shields.io/badge/share-facebook-blue.svg?longCache=true&style=flat&colorB=%234267b2)](https://www.facebook.com/sharer/sharer.php?u=https%3A//github.com/pichillilorenzo/flutter_inappwebview)
 
+```
+ // FIXME: 修复无法加载本地文件的问题 InAppWebView.swift
+     public func loadData(data: String, mimeType: String, encoding: String, baseUrl: URL, allowingReadAccessTo: URL?) {
+        if #available(iOS 9.0, *), let allowingReadAccessTo = allowingReadAccessTo, baseUrl.scheme == "file", allowingReadAccessTo.scheme == "file" {
+            loadFileURL(baseUrl, allowingReadAccessTo: allowingReadAccessTo)
+        }
+        
+        if #available(iOS 9.0, *) {
+            // FIXME: 修复无法加载本地文件的问题 InAppWebView.swift
+            let isEmptyBaseUrl  = baseUrl.scheme?.hasPrefix("about") ?? false
+            if  isEmptyBaseUrl {
+                let mainBundle =  Bundle.main
+                let bundleURL = mainBundle.bundleURL
+                load(data.data(using: .utf8)!, mimeType: mimeType, characterEncodingName: encoding, baseURL: bundleURL)
+            } else {
+                load(data.data(using: .utf8)!, mimeType: mimeType, characterEncodingName: encoding, baseURL: baseUrl)
+            }
+
+        } else {
+            loadHTMLString(data, baseURL: baseUrl)
+        }
+    }
+```
+
 [![Pub](https://img.shields.io/pub/v/flutter_inappwebview.svg)](https://pub.dartlang.org/packages/flutter_inappwebview)
 [![pub points](https://badges.bar/flutter_inappwebview/pub%20points)](https://pub.dev/packages/flutter_inappwebview/score)
 [![popularity](https://badges.bar/flutter_inappwebview/popularity)](https://pub.dev/packages/flutter_inappwebview/score)
